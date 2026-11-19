@@ -142,6 +142,7 @@
     $("transactionCount").textContent = "—";
     $("merchantMessage").textContent = "আবেদন করতে প্রথমে লগইন করুন।";
     $("adminBootstrap").classList.add("hidden");
+    $("adminTools").classList.add("hidden");
   }
 
   async function loadSession(session) {
@@ -157,6 +158,7 @@
     $("signOut").classList.remove("hidden");
     $("merchantMessage").textContent = "আপনি লগইন করেছেন। ব্যবসার তথ্য দিয়ে আবেদন করুন।";
     $("adminBootstrap").classList.toggle("hidden", (user.email || "").toLowerCase() !== "24nexopay@gmail.com");
+    verifyAdminAccess();
     notice("আপনার অ্যাকাউন্ট সংযুক্ত হয়েছে।");
     try {
       const [wallets, txs] = await Promise.all([
@@ -242,6 +244,73 @@
       bundles.textContent = "প্যাকেজ তালিকা লোড করা যায়নি।";
     }
   }
+
+  async function adminRequest(payload) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) throw new Error("সেশন মেয়াদ শেষ। আবার লগইন করুন।");
+    const response = await fetch(cfg.ADMIN_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": cfg.SUPABASE_PUBLISHABLE_KEY,
+        "Authorization": "Bearer " + session.access_token
+      },
+      body: JSON.stringify(payload)
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "অ্যাডমিন অনুরোধ সম্পন্ন হয়নি।");
+    return result.data;
+  }
+
+  async function verifyAdminAccess() {
+    const panel = $("adminTools");
+    panel.classList.add("hidden");
+    if (!currentUser) return;
+    try {
+      await adminRequest({ action: "summary" });
+      panel.classList.remove("hidden");
+      $("bundleAdminMessage").textContent = "Super Admin অনুমতি যাচাই হয়েছে।";
+    } catch (_) {
+      $("bundleAdminMessage").textContent = "এই অ্যাকাউন্টে অ্যাডমিন অনুমতি নেই।";
+    }
+  }
+
+  $("bundleAdminForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!currentUser) return;
+    const button = $("bundleSave");
+    const price = Number($("bundlePrice").value);
+    if (!Number.isFinite(price) || price <= 0 || price > 1000000) {
+      $("bundleAdminMessage").textContent = "সঠিক প্যাকেজ মূল্য লিখুন।";
+      return;
+    }
+    const optionalInt = id => $(id).value.trim() === "" ? null : Number.parseInt($(id).value, 10);
+    button.disabled = true;
+    $("bundleAdminMessage").textContent = "প্যাকেজ সংরক্ষণ হচ্ছে…";
+    try {
+      await adminRequest({
+        action: "bundle-save",
+        operator_code: $("bundleOperator").value,
+        category_code: $("bundleCategory").value,
+        name: $("bundleName").value.trim(),
+        description: null,
+        price_minor: Math.round(price * 100),
+        data_mb: optionalInt("bundleData"),
+        minutes: optionalInt("bundleMinutes"),
+        sms_count: optionalInt("bundleSms"),
+        validity_hours: optionalInt("bundleValidity"),
+        recharge_type: "prepaid",
+        is_active: $("bundleActive").checked
+      });
+      $("bundleAdminForm").reset();
+      $("bundleAdminMessage").textContent = "প্যাকেজ সংরক্ষিত হয়েছে। ক্যাটালগ রিফ্রেশ করা হচ্ছে।";
+      await loadCatalogue();
+    } catch (error) {
+      $("bundleAdminMessage").textContent = error.message || "প্যাকেজ সংরক্ষণ করা যায়নি।";
+    } finally {
+      button.disabled = false;
+    }
+  });
 
   $("merchantForm").addEventListener("submit", async (event) => {
     event.preventDefault();
