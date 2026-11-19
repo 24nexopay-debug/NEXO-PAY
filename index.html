@@ -39,7 +39,24 @@
         <article class="service"><div class="service-icon">⌁</div><h3>বিল পেমেন্ট</h3><p>বিল সেবার জন্য প্রস্তুতিমূলক বিভাগ।</p><span class="status">ইন্টিগ্রেশন প্রয়োজন</span></article>
         <article class="service"><div class="service-icon">▣</div><h3>মার্চেন্ট সেবা</h3><p>ব্যবসায়িক পেমেন্ট গ্রহণের জন্য প্ল্যাটফর্ম।</p><span class="status">অনুমোদন প্রয়োজন</span></article>
       </div>
-      <div id="catalogue" class="catalogue panel"><div><span class="eyebrow">TELECOM CATALOGUE</span><h3>অপারেটর ও সেবা</h3></div><div id="operatorList" class="operator-list">ডেটা লোড হচ্ছে…</div></div>
+      <div id="catalogue" class="catalogue panel">
+        <div><span class="eyebrow">TELECOM CATALOGUE</span><h3>অপারেটর ও সেবা</h3></div>
+        <h4 class="catalogue-label">সক্রিয় অপারেটর</h4><div id="operatorList" class="operator-list">ডেটা লোড হচ্ছে…</div>
+        <h4 class="catalogue-label">সেবার ধরন</h4><div id="categoryList" class="operator-list">লোড হচ্ছে…</div>
+        <h4 class="catalogue-label">প্যাকেজ</h4><div id="bundleList" class="bundle-list">প্যাকেজ লোড হচ্ছে…</div>
+        <p class="notice">রিচার্জ বা প্যাকেজ কেনা এখনো চালু নয়। অপারেটর-অনুমোদিত রিচার্জ API সংযোগের পর চালু হবে।</p>
+      </div>
+    </section>
+    <section id="merchant" class="section">
+      <div class="section-heading"><span class="eyebrow">MERCHANT ONBOARDING</span><h2>ব্যবসার জন্য NEXO PAY</h2><p>মার্চেন্ট অ্যাকাউন্টের আবেদন করুন। অনুমোদনের আগে পেমেন্ট গ্রহণ চালু হবে না।</p></div>
+      <form id="merchantForm" class="merchant-form panel">
+        <label>ব্যবসার নাম<input id="businessName" required maxlength="120" placeholder="আপনার প্রতিষ্ঠানের নাম"></label>
+        <label>ব্যবসার ধরন<input id="businessType" maxlength="80" placeholder="যেমন: অনলাইন শপ"></label>
+        <label>যোগাযোগের ইমেইল<input id="businessEmail" type="email" maxlength="254" placeholder="business@example.com"></label>
+        <label>যোগাযোগের ফোন<input id="businessPhone" type="tel" maxlength="24" placeholder="+8801XXXXXXXXX"></label>
+        <button id="merchantSubmit" class="btn btn-primary" type="submit">আবেদন জমা দিন</button>
+        <p id="merchantMessage" class="notice" role="status">আবেদন করতে প্রথমে লগইন করুন।</p>
+      </form>
     </section>
     <section id="account" class="section account-section">
       <div class="section-heading"><span class="eyebrow">আপনার অ্যাকাউন্ট</span><h2>এক নজরে আপনার ড্যাশবোর্ড</h2></div>
@@ -53,6 +70,6 @@
     <section id="security" class="security"><div><span class="eyebrow">নিরাপত্তা আগে</span><h2>আপনার তথ্য, আপনার নিয়ন্ত্রণে</h2><p>সাইন-ইন ও ব্যক্তিগত ডেটা Supabase-এর মাধ্যমে পরিচালিত হয়। সংবেদনশীল সার্ভার কী কখনো ব্রাউজারে রাখা হয় না।</p></div><div class="security-mark">N<span>✓</span></div></section>
   </main>
   <footer><a class="brand" href="#"><span class="brand-mark">N</span><span>NEXO <b>PAY</b></span></a><span>© <span id="year"></span> NEXO PAY Bangladesh</span><span class="muted">সেবা চালুর অবস্থা: ইন্টিগ্রেশন সাপেক্ষ</span></footer>
-  <dialog id="authDialog"><form id="authForm" method="dialog"><button type="button" id="closeDialog" class="close" aria-label="বন্ধ করুন">×</button><span class="eyebrow">WELCOME TO NEXO PAY</span><h2 id="authTitle">আপনার অ্যাকাউন্টে প্রবেশ করুন</h2><label>ইমেইল<input id="email" type="email" autocomplete="email" required placeholder="name@example.com"></label><label>পাসওয়ার্ড<input id="password" type="password" autocomplete="current-password" minlength="8" required placeholder="কমপক্ষে ৮ অক্ষর"></label><button id="authSubmit" class="btn btn-primary full" type="submit">লগইন</button><button type="button" id="toggleAuth" class="switch">নতুন অ্যাকাউন্ট খুলবেন? সাইন আপ</button><p id="authMessage" class="notice" role="status"></p></form></dialog>
+  <dialog id="authDialog"><form id="authForm" method="dialog"><button type="button" id="closeDialog" class="close" aria-label="বন্ধ করুন">×</button><span class="eyebrow">WELCOME TO NEXO PAY</span><h2 id="authTitle">আপনার অ্যাকাউন্টে প্রবেশ করুন</h2><label>ইমেইল<input id="email" type="email" autocomplete="email" required placeholder="name@example.com"></label><label>পাসওয়ার্ড<input id="password" type="password" autocomplete="current-password" minlength="8" required placeholder="কমপক্ষে ৮ অক্ষর"></label><button id="authSubmit" class="btn btn-primary full" type="submit">লগইন</button><button type="button" id="toggleAuth" class="switch">নতুন অ্যাকাউন্ট খুলবেন? সাইন আপ</button><button type="button" id="resetPassword" class="switch">পাসওয়ার্ড ভুলে গেছেন?</button><p id="authMessage" class="notice" role="status"></p></form></dialog>
 </body>
 </html>
