@@ -67,6 +67,23 @@
         <div id="adminBootstrap" class="admin-bootstrap hidden"><p>এই ইমেইলটি NEXO PAY-এর প্রাথমিক প্রশাসক হিসেবে অনুমোদিত।</p><button id="claimAdmin" class="btn btn-outline" type="button">Super Admin সক্রিয় করুন</button><p id="adminMessage" class="notice" role="status"></p></div><p id="notice" class="notice" role="status">অ্যাকাউন্ট তৈরি বা লগইন করতে উপরের বোতাম ব্যবহার করুন।</p>
       </div>
     </section>
+    <section id="adminTools" class="section hidden">
+      <div class="section-heading"><span class="eyebrow">ADMIN CONTROL</span><h2>টেলিকম অফার পরিচালনা</h2><p>শুধু অনুমোদিত Super Admin এখানে অপারেটরের যাচাইকৃত প্যাকেজ যোগ করতে পারবেন। প্রকাশের আগে অপারেটরের বর্তমান মূল্য ও শর্ত যাচাই করুন।</p></div>
+      <form id="bundleAdminForm" class="merchant-form panel">
+        <label>অপারেটর<select id="bundleOperator" required><option value="grameenphone">Grameenphone</option><option value="robi">Robi</option><option value="banglalink">Banglalink</option><option value="airtel">Airtel</option><option value="teletalk">Teletalk</option></select></label>
+        <label>প্যাকেজের ধরন<select id="bundleCategory" required><option value="internet">Internet</option><option value="minute">Minute</option><option value="sms">SMS</option><option value="combo">Combo</option><option value="recharge">Recharge</option><option value="postpaid">Postpaid</option></select></label>
+        <label>প্যাকেজের নাম<input id="bundleName" required maxlength="120" placeholder="যেমন: 5 GB Internet"></label>
+        <label>বিক্রয় মূল্য (টাকা)<input id="bundlePrice" type="number" min="0.01" step="0.01" required placeholder="যেমন: 99"></label>
+        <label>ডেটা (MB)<input id="bundleData" type="number" min="0" step="1" placeholder="ঐচ্ছিক"></label>
+        <label>মিনিট<input id="bundleMinutes" type="number" min="0" step="1" placeholder="ঐচ্ছিক"></label>
+        <label>SMS সংখ্যা<input id="bundleSms" type="number" min="0" step="1" placeholder="ঐচ্ছিক"></label>
+        <label>মেয়াদ (ঘণ্টা)<input id="bundleValidity" type="number" min="1" step="1" placeholder="ঐচ্ছিক"></label>
+        <label class="admin-check"><input id="bundleActive" type="checkbox"> যাচাইকৃত তথ্য হলে ওয়েবসাইটে প্রকাশ করুন</label>
+        <p class="notice admin-note">এখানে প্যাকেজ যোগ করলে শুধু ক্যাটালগে দেখাবে; এটি নিজে থেকে রিচার্জ সম্পন্ন বা কমিশন তৈরি করবে না।</p>
+        <button id="bundleSave" class="btn btn-primary" type="submit">প্যাকেজ সংরক্ষণ করুন</button>
+        <p id="bundleAdminMessage" class="notice" role="status">Super Admin যাচাই করা হচ্ছে…</p>
+      </form>
+    </section>
     <section id="security" class="security"><div><span class="eyebrow">নিরাপত্তা আগে</span><h2>আপনার তথ্য, আপনার নিয়ন্ত্রণে</h2><p>সাইন-ইন ও ব্যক্তিগত ডেটা Supabase-এর মাধ্যমে পরিচালিত হয়। সংবেদনশীল সার্ভার কী কখনো ব্রাউজারে রাখা হয় না।</p></div><div class="security-mark">N<span>✓</span></div></section>
   </main>
   <footer><a class="brand" href="#"><span class="brand-mark">N</span><span>NEXO <b>PAY</b></span></a><span>© <span id="year"></span> NEXO PAY Bangladesh</span><span class="muted">সেবা চালুর অবস্থা: ইন্টিগ্রেশন সাপেক্ষ</span></footer>
