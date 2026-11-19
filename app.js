@@ -216,7 +216,7 @@
         supabase.from("telecom_service_categories").select("code,name,display_order")
           .eq("is_active", true).order("display_order", { ascending: true }),
         supabase.from("telecom_bundles")
-          .select("name,description,price_minor,data_mb,minutes,sms_count,validity_hours,recharge_type,operator_id,category_id,telecom_operators(name),telecom_service_categories(name)")
+          .select("name,description,price_minor,data_mb,minutes,sms_count,validity_hours,recharge_type,source,operator_id,category_id,telecom_operators(name),telecom_service_categories(name)")
           .eq("is_active", true).order("price_minor", { ascending: true }).limit(30)
       ]);
       if (opResult.error) throw opResult.error;
@@ -234,7 +234,8 @@
           const meta = [b.data_mb ? (b.data_mb >= 1024 ? (b.data_mb/1024).toFixed(1)+" GB" : b.data_mb+" MB") : "",
             b.minutes ? b.minutes+" মিনিট" : "", b.sms_count ? b.sms_count+" SMS" : "",
             b.validity_hours ? b.validity_hours+" ঘণ্টা" : ""].filter(Boolean).join(" · ");
-          return '<article class="bundle"><div><b>' + escapeHtml(b.name) + '</b><small>' +
+          const isDemo = String(b.name || "").startsWith("DEMO ·") || String(b.description || "").toLowerCase().includes("ডেমো");
+          return '<article class="bundle"><div><b>' + escapeHtml(b.name) + (isDemo ? ' <span class="demo-tag">DEMO</span>' : '') + '</b><small>' +
             escapeHtml(b.description || meta || "টেলিকম প্যাকেজ") + '</small></div><strong>' +
             escapeHtml(money(b.price_minor)) + '</strong></article>';
         }).join("");
