@@ -88,6 +88,24 @@
         <p id="bundleAdminMessage" class="notice" role="status">Super Admin যাচাই করা হচ্ছে…</p>
       </form>
     </section>
+    <section id="adminDashboard" class="section hidden">
+      <div class="section-heading"><span class="eyebrow">SUPER ADMIN CONSOLE</span><h2>প্রশাসক নিয়ন্ত্রণ কেন্দ্র</h2><p>অ্যাকাউন্ট, ওয়ালেট, লেনদেন, মার্চেন্ট ও পেমেন্ট প্রোভাইডারের সারসংক্ষেপ। প্রতিটি পরিবর্তন সার্ভার-সাইড অনুমতি ও অডিট লগের অধীনে।</p></div>
+      <div class="admin-stats" id="adminStats"><div class="admin-stat">ড্যাশবোর্ড লোড হচ্ছে…</div></div>
+      <div class="admin-columns">
+        <div class="panel admin-panel"><h3>মার্চেন্ট আবেদন</h3><div id="adminMerchants" class="admin-list">লোড হচ্ছে…</div></div>
+        <div class="panel admin-panel"><h3>পেমেন্ট প্রোভাইডার</h3><p class="notice">অনুমোদন ও credentials ছাড়া কোনো প্রোভাইডার চালু করবেন না।</p><div id="adminProviders" class="admin-list">লোড হচ্ছে…</div></div>
+      </div>
+      <div class="panel admin-panel admin-wallet-panel"><h3>ওয়ালেট নিয়ন্ত্রণ</h3><p class="notice">শুধু বৈধ প্রশাসনিক সংশোধনের জন্য। প্রতিটি পরিবর্তনে কারণ লিখতে হবে এবং অডিট লগ হবে।</p>
+        <form id="adminWalletForm" class="admin-wallet-form">
+          <label>ব্যবহারকারীর User ID<input id="adminWalletUser" required placeholder="Supabase User UUID"></label>
+          <label>পরিমাণ (BDT)<input id="adminWalletAmount" type="number" min="0.01" step="0.01" required></label>
+          <label>ধরন<select id="adminWalletDirection"><option value="credit">ক্রেডিট</option><option value="debit">ডেবিট</option></select></label>
+          <label>কারণ (কমপক্ষে ৮ অক্ষর)<input id="adminWalletReason" minlength="8" required placeholder="সংশোধনের কারণ"></label>
+          <button id="adminWalletSubmit" class="btn btn-outline" type="submit">ওয়ালেট সংশোধন জমা দিন</button>
+        </form><p id="adminWalletMessage" class="notice" role="status"></p>
+      </div>
+      <p id="adminDashboardMessage" class="notice" role="status"></p>
+    </section>
     <section id="security" class="security"><div><span class="eyebrow">নিরাপত্তা আগে</span><h2>আপনার তথ্য, আপনার নিয়ন্ত্রণে</h2><p>সাইন-ইন ও ব্যক্তিগত ডেটা Supabase-এর মাধ্যমে পরিচালিত হয়। সংবেদনশীল সার্ভার কী কখনো ব্রাউজারে রাখা হয় না।</p></div><div class="security-mark">N<span>✓</span></div></section>
   </main>
   <footer><a class="brand" href="#"><span class="brand-mark">N</span><span>NEXO <b>PAY</b></span></a><span>© <span id="year"></span> NEXO PAY Bangladesh</span><span class="muted">সেবা চালুর অবস্থা: ইন্টিগ্রেশন সাপেক্ষ</span></footer>
