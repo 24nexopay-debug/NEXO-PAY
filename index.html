@@ -48,7 +48,7 @@
         <h4 class="catalogue-label">সক্রিয় অপারেটর</h4><div id="operatorList" class="operator-list">ডেটা লোড হচ্ছে…</div>
         <h4 class="catalogue-label">সেবার ধরন</h4><div id="categoryList" class="operator-list">লোড হচ্ছে…</div>
         <h4 class="catalogue-label">প্যাকেজ</h4><div id="bundleList" class="bundle-list">প্যাকেজ লোড হচ্ছে…</div>
-        <p class="notice">রিচার্জ বা প্যাকেজ কেনা এখনো চালু নয়। অপারেটর-অনুমোদিত রিচার্জ API সংযোগের পর চালু হবে।</p>
+        <p class="notice">DEMO চিহ্নিত প্যাকেজগুলো কেবল নমুনা; এগুলো কেনা বা রিচার্জ করা যাবে না। বাস্তব অফার ও রিচার্জের জন্য অনুমোদিত অপারেটর/অ্যাগ্রিগেটর API প্রয়োজন।</p>
       </div>
     </section>
     <section id="merchant" class="section">
@@ -95,6 +95,7 @@
         <div class="panel admin-panel"><h3>মার্চেন্ট আবেদন</h3><div id="adminMerchants" class="admin-list">লোড হচ্ছে…</div></div>
         <div class="panel admin-panel"><h3>পেমেন্ট প্রোভাইডার</h3><p class="notice">অনুমোদন ও credentials ছাড়া কোনো প্রোভাইডার চালু করবেন না।</p><div id="adminProviders" class="admin-list">লোড হচ্ছে…</div></div>
       </div>
+      <div class="panel admin-panel provider-setup"><h3>পেমেন্ট প্রোভাইডার সেটআপ</h3><p class="notice">নিরাপত্তার জন্য Store ID, Password, API Secret বা webhook secret ওয়েবসাইটের ফর্মে দেবেন না। এগুলো Supabase Dashboard → Edge Functions → Secrets-এ যোগ করতে হবে।</p><ol><li><b>Merchant onboarding:</b> SSLCommerz / ShurjoPay-এর merchant account ও প্রয়োজনীয় ব্যবসায়িক অনুমোদন সংগ্রহ করুন।</li><li><b>Sandbox credentials:</b> Provider-এর sandbox Store ID ও Secret Supabase Edge Function Secrets-এ রাখুন।</li><li><b>Webhook/IPN:</b> provider-এর callback URL configure করে signature ও transaction status server-side যাচাই করুন।</li><li><b>পরীক্ষা:</b> সফল, ব্যর্থ, pending, duplicate callback ও refund sandbox-এ যাচাই করুন।</li><li><b>Live approval:</b> প্রয়োজনীয় অনুমোদন ও live credentials যাচাইয়ের পরেই backend থেকে provider enable করা যাবে।</li></ol><p class="notice">প্রোভাইডার সেটআপ রেফারেন্স: <a href="https://sslcommerz.com/onboarding-requirements/" target="_blank" rel="noopener">SSLCOMMERZ onboarding</a> · <a href="https://developer.sslcommerz.com/" target="_blank" rel="noopener">Developer docs</a></p><p id="providerSetupMessage" class="notice">বর্তমান অবস্থা: সব প্রোভাইডার বন্ধ; সেটআপের অপেক্ষায়।</p></div>
       <div class="admin-operations">
         <div class="panel admin-panel"><h3>সাম্প্রতিক লেনদেন</h3><div id="adminTransactions" class="admin-list">লোড হচ্ছে…</div></div>
         <div class="panel admin-panel"><h3>রিফান্ড অনুরোধ</h3><div id="adminRefunds" class="admin-list">লোড হচ্ছে…</div></div>
