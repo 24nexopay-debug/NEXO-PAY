@@ -271,6 +271,7 @@
       await adminRequest({ action: "summary" });
       panel.classList.remove("hidden");
       $("bundleAdminMessage").textContent = "Super Admin অনুমতি যাচাই হয়েছে।";
+      await loadAdminDashboard();
     } catch (_) {
       $("bundleAdminMessage").textContent = "এই অ্যাকাউন্টে অ্যাডমিন অনুমতি নেই।";
     }
