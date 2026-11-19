@@ -94,6 +94,36 @@
     }
   });
 
+  $("claimAdmin").addEventListener("click", async () => {
+    if (!supabase || !currentUser || (currentUser.email || "").toLowerCase() !== "24nexopay@gmail.com") return;
+    const button = $("claimAdmin");
+    button.disabled = true;
+    $("adminMessage").textContent = "প্রশাসক অনুমতি যাচাই হচ্ছে…";
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch(cfg.ADMIN_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": cfg.SUPABASE_PUBLISHABLE_KEY,
+          "Authorization": "Bearer " + session.access_token
+        },
+        body: JSON.stringify({ action: "bootstrap-claim" })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "প্রশাসক অনুমতি সক্রিয় হয়নি।");
+      if (result.data === true) {
+        $("adminMessage").textContent = "Super Admin অনুমতি সক্রিয় হয়েছে। নিরাপদে লগআউট করে আবার লগইন করুন।";
+      } else {
+        $("adminMessage").textContent = "প্রাথমিক প্রশাসক অনুমতি গ্রহণ করা যায়নি।";
+      }
+    } catch (error) {
+      $("adminMessage").textContent = error.message || "অনুমতি যাচাই ব্যর্থ হয়েছে।";
+    } finally {
+      button.disabled = false;
+    }
+  });
+
   $("signOut").addEventListener("click", async () => {
     if (!supabase) return;
     $("signOut").disabled = true;
@@ -111,6 +141,7 @@
     $("heroBalance").textContent = "৳ —";
     $("transactionCount").textContent = "—";
     $("merchantMessage").textContent = "আবেদন করতে প্রথমে লগইন করুন।";
+    $("adminBootstrap").classList.add("hidden");
   }
 
   async function loadSession(session) {
@@ -125,6 +156,7 @@
     $("userStatus").textContent = user.email || "স্বাগতম";
     $("signOut").classList.remove("hidden");
     $("merchantMessage").textContent = "আপনি লগইন করেছেন। ব্যবসার তথ্য দিয়ে আবেদন করুন।";
+    $("adminBootstrap").classList.toggle("hidden", (user.email || "").toLowerCase() !== "24nexopay@gmail.com");
     notice("আপনার অ্যাকাউন্ট সংযুক্ত হয়েছে।");
     try {
       const [wallets, txs] = await Promise.all([
