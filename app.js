@@ -287,9 +287,27 @@
       const labels=[["মোট অ্যাকাউন্ট",summary.users],["ওয়ালেট",summary.wallets],["সক্রিয় ওয়ালেট",summary.active_wallets],["মোট লেনদেন",summary.transactions_total],["অপেক্ষমাণ লেনদেন",summary.transactions_pending],["অপেক্ষমাণ মার্চেন্ট",summary.merchants_pending],["খোলা রিফান্ড",summary.refunds_open],["খোলা বিরোধ",summary.disputes_open]];
       $("adminStats").innerHTML=labels.map(([label,value])=>'<div class="admin-stat"><span>'+escapeHtml(label)+'</span><strong>'+escapeHtml(Number(value||0).toLocaleString("bn-BD"))+'</strong></div>').join("");
       panel.classList.remove("hidden");
-      await Promise.all([loadAdminMerchants(),loadAdminProviders()]);
+      await Promise.all([loadAdminMerchants(),loadAdminProviders(),loadAdminOperations()]);
     } catch(error) {
       $("adminDashboardMessage").textContent=error.message||"অ্যাডমিন ড্যাশবোর্ড লোড হয়নি।";
+    }
+  }
+  async function loadAdminOperations() {
+    const specs=[
+      ["adminTransactions","transactions","id,reference,amount_minor,currency,status,transaction_type,created_at"],
+      ["adminRefunds","refunds","id,amount_minor,reason,status,created_at"],
+      ["adminDisputes","disputes","id,reason,status,created_at"]
+    ];
+    for(const [target,table,columns] of specs){
+      const box=$(target);
+      const {data,error}=await supabase.from(table).select(columns).order("created_at",{ascending:false}).limit(10);
+      if(error){box.textContent="তালিকা লোড করা যায়নি।";continue;}
+      if(!data?.length){box.textContent="কোনো রেকর্ড নেই।";continue;}
+      box.innerHTML=data.map(row=>{
+        const title=table==="transactions"?(row.reference||row.transaction_type||row.id.slice(0,8)):(row.reason||row.id.slice(0,8));
+        const amount=Number.isFinite(Number(row.amount_minor))?" · "+escapeHtml(money(row.amount_minor,row.currency||"BDT")):"";
+        return '<article class="admin-row admin-row-compact"><div><b>'+escapeHtml(title)+'</b><small>'+escapeHtml(row.status||"unknown")+amount+'</small><small>'+escapeHtml(new Date(row.created_at).toLocaleString("bn-BD"))+'</small></div></article>';
+      }).join("");
     }
   }
   async function loadAdminMerchants() {
@@ -313,7 +331,7 @@
     const box=$("adminProviders");
     const {data,error}=await supabase.from("payment_providers").select("code,display_name,provider_type,is_enabled,supported_services").order("display_name");
     if(error){box.textContent="প্রোভাইডার তালিকা পড়া যায়নি।";return;}
-    box.innerHTML=(data||[]).map(p=>'<article class="admin-row"><div><b>'+escapeHtml(p.display_name)+'</b><small>'+escapeHtml(p.provider_type)+' · '+escapeHtml((p.supported_services||[]).join(", "))+'</small><small>অবস্থা: '+(p.is_enabled?"সক্রিয়":"বন্ধ")+'</small></div><button class="btn btn-outline" data-provider="'+escapeHtml(p.code)+'" data-enabled="'+(!p.is_enabled)+'">'+(p.is_enabled?"বন্ধ করুন":"চালু করুন")+'</button></article>').join("")||"কোনো প্রোভাইডার নেই।";
+    box.innerHTML=(data||[]).map(p=>'<article class="admin-row"><div><b>'+escapeHtml(p.display_name)+'</b><small>'+escapeHtml(p.provider_type)+' · '+escapeHtml((p.supported_services||[]).join(", "))+'</small><small>অবস্থা: '+(p.is_enabled?"সক্রিয়":"বন্ধ")+'</small></div><button class="btn btn-outline" data-provider="'+escapeHtml(p.code)+'" data-enabled="'+(!p.is_enabled)+'" '+(!p.is_enabled?'disabled title="Credentials ও অনুমোদন না আসা পর্যন্ত চালু করা যাবে না"':'')+'>'+(p.is_enabled?"বন্ধ করুন":"চালু করুন")+'</button></article>').join("")||"কোনো প্রোভাইডার নেই।";
     box.querySelectorAll("button[data-provider]").forEach(button=>button.addEventListener("click",async()=>{
       const enabled=button.dataset.enabled==="true";
       if(enabled&&!confirm("প্রোভাইডার চালু করবেন? বৈধ অনুমোদন, credentials ও webhook পরীক্ষা ছাড়া এটি করবেন না।"))return;
