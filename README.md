@@ -1,22 +1,41 @@
 # NEXO PAY Bangladesh
 
-A responsive starter frontend for NEXO PAY, connected to the existing Supabase project.
+NEXO PAY is a Bengali-first digital services frontend connected to the Supabase project and deployed on GitHub Pages.
 
-## Deploy free with GitHub Pages
-1. Open **Settings → Pages** and choose **GitHub Actions** as the build and deployment source if GitHub asks.
-2. The workflow in `.github/workflows/pages.yml` deploys the site automatically after each push to `main`.
-3. After the first successful run, the site URL is usually https://24nexopay-debug.github.io/NEXO-PAY/.
+## Production site
+https://24nexopay-debug.github.io/NEXO-PAY/
 
-## Supabase
-The browser uses only the Supabase publishable key. Never put a service-role key in frontend files.
-Set the production URL and redirect URL in Supabase Authentication → URL Configuration after Pages is live.
+## Deploy
+The workflow at `.github/workflows/pages.yml` deploys the static site to GitHub Pages on pushes to `main`.
 
-## Important launch limitations
-- Login and registration use Supabase Auth.
-- Wallet balance and transaction history are read-only views of backend data.
-- Recharge and bill-payment catalogues require verified active rows in Supabase.
-- Payment providers are disabled until merchant credentials, callbacks, and verification are configured.
-- Wallet spending, live recharge, bill payment, refunds, and settlements are not enabled by this frontend.
-- Admin functions remain server-authorized; the browser must not be treated as an authorization boundary.
+## Current functionality
+- Supabase email/password registration and login.
+- Password reset email request.
+- Read-only wallet balance and recent transaction history for the signed-in user.
+- Public telecom operator and service-category catalogue.
+- Active bundle catalogue display (currently no active bundles are configured).
+- Merchant onboarding request through the authenticated `merchant-api` Edge Function.
+- Restricted initial Super Admin bootstrap button for the allowlisted account; the database RPC remains the authority.
+- Edge Functions use the production GitHub Pages origin for browser CORS.
 
-Before production use, restrict the admin API CORS policy to the final Pages domain, enable leaked-password protection, configure a Super Admin, and complete provider integration and end-to-end tests.
+## Supabase production setup still required
+1. In Authentication → URL Configuration, set the Site URL to `https://24nexopay-debug.github.io/NEXO-PAY/` and add the matching redirect URL.
+2. In Authentication → Security and Protection, enable leaked-password protection.
+3. Sign in with the allowlisted owner account `24nexopay@gmail.com` and explicitly press **Super Admin সক্রিয় করুন** in the dashboard. The database checks the allowlist; frontend visibility is not the security boundary.
+4. Configure an approved payment provider account and store its credentials only in Supabase Edge Function secrets. Never add secret keys to this repository or browser config.
+5. Configure provider callback/webhook URLs and signing secrets, complete provider sandbox tests, and obtain any required Bangladesh regulatory/provider approvals.
+6. Add verified operator package data before publishing recharge offers.
+
+## Not enabled / not represented as live
+- Wallet top-up, withdrawal, transfer, or spending.
+- Live mobile recharge and bill payment.
+- Merchant payment collection and settlement.
+- Refunds, disputes, partner API production access.
+- Payment providers are currently disabled; do not enable them without credentials and end-to-end verification.
+
+## Security
+- Browser config contains only the Supabase URL and publishable key.
+- Service-role keys remain server-side in Supabase.
+- User wallet and transaction reads rely on Row Level Security.
+- Admin and merchant actions are checked by server-side Edge Functions and database RPCs.
+- Never commit API secrets, webhook signing secrets, or service-role keys.
