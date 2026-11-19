@@ -143,6 +143,7 @@
     $("merchantMessage").textContent = "আবেদন করতে প্রথমে লগইন করুন।";
     $("adminBootstrap").classList.add("hidden");
     $("adminTools").classList.add("hidden");
+    $("adminDashboard").classList.add("hidden");
   }
 
   async function loadSession(session) {
@@ -274,6 +275,65 @@
       $("bundleAdminMessage").textContent = "এই অ্যাকাউন্টে অ্যাডমিন অনুমতি নেই।";
     }
   }
+
+
+  async function loadAdminDashboard() {
+    const panel=$("adminDashboard");
+    panel.classList.add("hidden");
+    if(!currentUser) return;
+    try {
+      const summary=await adminRequest({action:"summary"});
+      const labels=[["মোট অ্যাকাউন্ট",summary.users],["ওয়ালেট",summary.wallets],["সক্রিয় ওয়ালেট",summary.active_wallets],["মোট লেনদেন",summary.transactions_total],["অপেক্ষমাণ লেনদেন",summary.transactions_pending],["অপেক্ষমাণ মার্চেন্ট",summary.merchants_pending],["খোলা রিফান্ড",summary.refunds_open],["খোলা বিরোধ",summary.disputes_open]];
+      $("adminStats").innerHTML=labels.map(([label,value])=>'<div class="admin-stat"><span>'+escapeHtml(label)+'</span><strong>'+escapeHtml(Number(value||0).toLocaleString("bn-BD"))+'</strong></div>').join("");
+      panel.classList.remove("hidden");
+      await Promise.all([loadAdminMerchants(),loadAdminProviders()]);
+    } catch(error) {
+      $("adminDashboardMessage").textContent=error.message||"অ্যাডমিন ড্যাশবোর্ড লোড হয়নি।";
+    }
+  }
+  async function loadAdminMerchants() {
+    const box=$("adminMerchants");
+    const {data,error}=await supabase.from("merchants").select("id,business_name,business_type,contact_email,contact_phone,status,created_at").in("status",["pending","under_review"]).order("created_at",{ascending:false}).limit(30);
+    if(error) { box.textContent="মার্চেন্ট তালিকা পড়া যায়নি: "+error.message; return; }
+    if(!data?.length) { box.textContent="কোনো অপেক্ষমাণ আবেদন নেই।"; return; }
+    box.innerHTML=data.map(m=>'<article class="admin-row"><div><b>'+escapeHtml(m.business_name)+'</b><small>'+escapeHtml(m.business_type||"ব্যবসার ধরন নেই")+' · '+escapeHtml(m.contact_email||m.contact_phone||"যোগাযোগ নেই")+'</small><small>অবস্থা: '+escapeHtml(m.status)+'</small></div><div class="admin-actions"><button class="btn btn-outline" data-merchant="'+m.id+'" data-status="active">অনুমোদন</button><button class="btn btn-outline" data-merchant="'+m.id+'" data-status="rejected">প্রত্যাখ্যান</button></div></article>').join("");
+    box.querySelectorAll("button[data-merchant]").forEach(button=>button.addEventListener("click",async()=>{
+      button.disabled=true;
+      try { await adminRequest({action:"review-merchant",merchant_id:button.dataset.merchant,status:button.dataset.status,note:"Reviewed in NEXO PAY admin console"}); await loadAdminMerchants(); await loadAdminDashboardSummaryOnly(); }
+      catch(e){ $("adminDashboardMessage").textContent=e.message||"মার্চেন্ট আপডেট হয়নি।"; button.disabled=false; }
+    }));
+  }
+  async function loadAdminDashboardSummaryOnly() {
+    const s=await adminRequest({action:"summary"});
+    const labels=[["মোট অ্যাকাউন্ট",s.users],["ওয়ালেট",s.wallets],["সক্রিয় ওয়ালেট",s.active_wallets],["মোট লেনদেন",s.transactions_total],["অপেক্ষমাণ লেনদেন",s.transactions_pending],["অপেক্ষমাণ মার্চেন্ট",s.merchants_pending],["খোলা রিফান্ড",s.refunds_open],["খোলা বিরোধ",s.disputes_open]];
+    $("adminStats").innerHTML=labels.map(([l,v])=>'<div class="admin-stat"><span>'+escapeHtml(l)+'</span><strong>'+escapeHtml(Number(v||0).toLocaleString("bn-BD"))+'</strong></div>').join("");
+  }
+  async function loadAdminProviders() {
+    const box=$("adminProviders");
+    const {data,error}=await supabase.from("payment_providers").select("code,display_name,provider_type,is_enabled,supported_services").order("display_name");
+    if(error){box.textContent="প্রোভাইডার তালিকা পড়া যায়নি।";return;}
+    box.innerHTML=(data||[]).map(p=>'<article class="admin-row"><div><b>'+escapeHtml(p.display_name)+'</b><small>'+escapeHtml(p.provider_type)+' · '+escapeHtml((p.supported_services||[]).join(", "))+'</small><small>অবস্থা: '+(p.is_enabled?"সক্রিয়":"বন্ধ")+'</small></div><button class="btn btn-outline" data-provider="'+escapeHtml(p.code)+'" data-enabled="'+(!p.is_enabled)+'">'+(p.is_enabled?"বন্ধ করুন":"চালু করুন")+'</button></article>').join("")||"কোনো প্রোভাইডার নেই।";
+    box.querySelectorAll("button[data-provider]").forEach(button=>button.addEventListener("click",async()=>{
+      const enabled=button.dataset.enabled==="true";
+      if(enabled&&!confirm("প্রোভাইডার চালু করবেন? বৈধ অনুমোদন, credentials ও webhook পরীক্ষা ছাড়া এটি করবেন না।"))return;
+      button.disabled=true;
+      try{await adminRequest({action:"provider-toggle",provider_code:button.dataset.provider,enabled});await loadAdminProviders();}
+      catch(e){$("adminDashboardMessage").textContent=e.message||"প্রোভাইডার আপডেট হয়নি।";button.disabled=false;}
+    }));
+  }
+  $("adminWalletForm").addEventListener("submit",async event=>{
+    event.preventDefault();
+    const button=$("adminWalletSubmit"),amount=Number($("adminWalletAmount").value);
+    if(!Number.isFinite(amount)||amount<=0||amount>1000000){$("adminWalletMessage").textContent="সঠিক পরিমাণ লিখুন (সর্বোচ্চ ১০ লাখ টাকা)।";return;}
+    if(!confirm("আপনি কি এই ওয়ালেট সমন্বয়টি জমা দিতে চান? এটি প্রকৃত ব্যালেন্স পরিবর্তন করবে।"))return;
+    button.disabled=true;$("adminWalletMessage").textContent="অনুরোধ যাচাই হচ্ছে…";
+    try{
+      const data=await adminRequest({action:"wallet-adjustment",user_id:$("adminWalletUser").value.trim(),amount_minor:Math.round(amount*100),direction:$("adminWalletDirection").value,idempotency_key:"admin-"+crypto.randomUUID(),reason:$("adminWalletReason").value.trim()});
+      $("adminWalletForm").reset();$("adminWalletMessage").textContent="সমন্বয়ের অনুরোধ সম্পন্ন: "+JSON.stringify(data);
+      await loadAdminDashboardSummaryOnly();
+    }catch(e){$("adminWalletMessage").textContent=e.message||"ওয়ালেট সমন্বয় হয়নি।";}
+    finally{button.disabled=false;}
+  });
 
   $("bundleAdminForm").addEventListener("submit", async (event) => {
     event.preventDefault();
